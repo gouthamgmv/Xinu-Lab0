@@ -1,0 +1,65 @@
+1) Assuming the XINU text begins at address 0x0, draw a rough diagram of XINU's memory layout with addresses derived from your experimental measurements. Include the information you uncovered from running your version of printsegaddress() and printprocstks().
+
+ ________
+|        |
+|free    |
+|        |
+|        |
+|________| 00ffeff8 - base
+|main    | 
+|stack   | 00ffefa0 - pointer
+|________| 00ffdffc - limit
+|heap    |
+|________| 
+|        | 00011c58 - end
+| BSS    |
+|________| 0000baa1 - edata
+|        |
+| data   |
+|________| 00008ffc - etext
+| text   | 	    
+|________| 00000000
+
+2) What is the difference in stack top address before and after calling printtos() ? Draw a diagram to illustrate what are the contents of the items pushed into the stack between these two time points.
+
+Before calling printtos(), the top of stack address is 0x00ffefc0 and after calling printtos(), the top of stack address is 0x00ffefb8.
+
+The return address and the base pointer of main are pushed onto the stack immediately after the call instruction is executed.
+
+ ________  00ffefb8 -> top of stack after printtos() function
+|        |
+|00ffefec| EBP
+|________|
+| 0x4300 | return address
+|________|  
+|00000014| 00ffefc0 -> top of stack before printtos() call
+|________|
+|00000014|
+|________|
+|00000014|
+|________|
+
+3) Which byte order is adopted in the host machine that we are using? How did you find out?
+
+The host machine uses Little Endian format. The following code was run to find out. This works because network byte order is always Big Endian.
+
+if(htonl(35)==35)
+		kprintf("\n Big Endian!");
+	else
+		kprintf("\n Little Endian!");
+
+4) Briefly describe the mov, push, pusha, pop, and popa instructions in the x86.
+
+MOV instruction: Copy the register content/constant value referred to by the second operand into the memory address/register referred to by the first operand.
+
+PUSH instruction: Move the value of the operand onto the top of the stack in memory.
+
+PUSHA instruction: Used to store the entire set of register values onto the top of the stack in memory. (AX, BX, CX, DX, SP, BP, SI, DI)
+
+POP instruction: Remove the element on the top of the stack and store it in the memory location/register specified by the operand.
+
+POPA instruction: Used to remove the entire set of register values from the top of the stack in memory. (DI, SI, BP, SP, DX, CX, BX, AX)
+
+5) In a stack frame, local variables are stored below the top of the stack. In task 3, does your result show all the local variables declared in your printtos function? If not, can you explain that? (hint: try to disable the compiler optimization by specifing -O0 in your Makefile)
+
+No, all the local variables declared are not shown because compiler optimization moves them into the various registers.
